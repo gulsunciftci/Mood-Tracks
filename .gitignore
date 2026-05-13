@@ -1,0 +1,7 @@
+firebase_service_account.json
+.env
+__pycache__/
+*.pyc
+secrets.toml
+firebase_config.py
+*.pkl
