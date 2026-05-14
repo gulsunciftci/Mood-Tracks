@@ -1,5 +1,5 @@
 # =========================================================
-# 🎵 MoodTracks — FINAL VERSION
+# 🎵 MoodTracks — FINAL LOCAL VERSION
 # =========================================================
 
 import streamlit as st
@@ -9,15 +9,11 @@ import pyrebase
 import firebase_admin
 import unicodedata
 
+from firebase_config import firebase_config
+
 from firebase_admin import credentials
 from firebase_admin import firestore
 from sklearn.ensemble import RandomForestClassifier
-
-# =========================================================
-# FIREBASE CONFIG (Hugging Face Secrets)
-# =========================================================
-
-firebase_config = st.secrets["FIREBASE_CONFIG"]
 
 # =========================================================
 # PAGE CONFIG
@@ -120,7 +116,7 @@ auth = firebase.auth()
 if not firebase_admin._apps:
 
     cred = credentials.Certificate(
-        st.secrets["FIREBASE_SERVICE_ACCOUNT"]
+        "firebase_service_account.json"
     )
 
     firebase_admin.initialize_app(cred)
