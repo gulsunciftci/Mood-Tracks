@@ -13,7 +13,7 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from sklearn.ensemble import RandomForestClassifier
 
-from firebase_config import firebase_config
+firebase_config = dict(st.secrets["firebase"])
 
 # =========================================================
 # PAGE CONFIG
@@ -115,9 +115,7 @@ auth = firebase.auth()
 
 if not firebase_admin._apps:
 
-    cred = credentials.Certificate(
-        "firebase_service_account.json"
-    )
+    cred = credentials.Certificate(dict(st.secrets["firebase_service_account"]))
 
     firebase_admin.initialize_app(cred)
 
