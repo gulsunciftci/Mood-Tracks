@@ -14,16 +14,10 @@ from firebase_admin import firestore
 from sklearn.ensemble import RandomForestClassifier
 
 # =========================================================
-# FIREBASE CONFIG (HuggingFace Secrets)
+# FIREBASE CONFIG (Hugging Face Secrets)
 # =========================================================
 
-firebase_config = dict(st.secrets["FIREBASE_CONFIG"])
-
-# =========================================================
-# ADMIN
-# =========================================================
-
-ADMIN_EMAIL = "gulsunnciftci@gmail.com"
+firebase_config = st.secrets["FIREBASE_CONFIG"]
 
 # =========================================================
 # PAGE CONFIG
@@ -126,7 +120,7 @@ auth = firebase.auth()
 if not firebase_admin._apps:
 
     cred = credentials.Certificate(
-        dict(st.secrets["FIREBASE_SERVICE_ACCOUNT"])
+        st.secrets["FIREBASE_SERVICE_ACCOUNT"]
     )
 
     firebase_admin.initialize_app(cred)
@@ -259,10 +253,10 @@ if choice == "Login":
 
             st.rerun()
 
-        except Exception:
+        except Exception as e:
 
             st.sidebar.error(
-                "Login failed"
+                f"Login failed: {e}"
             )
 
 # =========================================================
@@ -301,7 +295,7 @@ if choice == "Register":
 
             role = "user"
 
-            if new_email.lower() == ADMIN_EMAIL.lower():
+            if new_email == "gulsunnciftci@gmail.com":
 
                 role = "admin"
 
@@ -318,10 +312,10 @@ if choice == "Register":
                 "Verification email sent!"
             )
 
-        except:
+        except Exception as e:
 
             st.sidebar.error(
-                "Registration failed"
+                f"Registration failed: {e}"
             )
 
 # =========================================================
