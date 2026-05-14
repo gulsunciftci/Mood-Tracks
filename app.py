@@ -13,7 +13,17 @@ from firebase_admin import credentials
 from firebase_admin import firestore
 from sklearn.ensemble import RandomForestClassifier
 
+# =========================================================
+# FIREBASE CONFIG (HuggingFace Secrets)
+# =========================================================
+
 firebase_config = dict(st.secrets["firebase"])
+
+# =========================================================
+# ADMIN
+# =========================================================
+
+ADMIN_EMAIL = "gulsunnciftci@gmail.com"
 
 # =========================================================
 # PAGE CONFIG
@@ -115,7 +125,9 @@ auth = firebase.auth()
 
 if not firebase_admin._apps:
 
-    cred = credentials.Certificate(dict(st.secrets["firebase_service_account"]))
+    cred = credentials.Certificate(
+        dict(st.secrets["firebase_service_account"])
+    )
 
     firebase_admin.initialize_app(cred)
 
@@ -215,7 +227,6 @@ if choice == "Login":
 
         try:
 
-            # FIREBASE LOGIN
             user = auth.sign_in_with_email_and_password(
                 email,
                 password
@@ -225,10 +236,8 @@ if choice == "Login":
 
             uid = user["localId"]
 
-            # DEFAULT ROLE
             role = "user"
 
-            # GET USER DOC
             user_doc = db.collection(
                 "users"
             ).document(uid).get()
@@ -250,7 +259,7 @@ if choice == "Login":
 
             st.rerun()
 
-        except Exception as e:
+        except Exception:
 
             st.sidebar.error(
                 "Login failed"
@@ -292,11 +301,7 @@ if choice == "Register":
 
             role = "user"
 
-            # =================================================
-            # ADMIN EMAIL
-            # =================================================
-
-            if new_email == "gulsunnciftci@gmail.com":
+            if new_email.lower() == ADMIN_EMAIL.lower():
 
                 role = "admin"
 
@@ -413,10 +418,6 @@ if st.session_state.role == "admin":
             0.5
         )
 
-        # =================================================
-        # ADD SONG
-        # =================================================
-
         if st.button(
             "➕ Add Song"
         ):
@@ -471,15 +472,12 @@ if st.session_state.role == "admin":
 
                 st.stop()
 
-            # NEW SONG
-
             new_row = {
 
                 "track_name": new_track,
                 "artists": new_artist,
                 "track_genre": new_genre,
                 "mood": new_mood,
-
                 "popularity": new_popularity,
                 "energy": new_energy,
                 "valence": new_valence
@@ -509,10 +507,6 @@ if st.session_state.role == "admin":
                 "admin_songs.csv",
                 index=False
             )
-
-            # =================================================
-            # RETRAIN MODEL
-            # =================================================
 
             full_df = pd.concat(
                 [df, new_df],
@@ -624,10 +618,6 @@ if st.button(
             filtered["track_genre"] == genre
         ]
 
-    # =====================================================
-    # TURKISH SEARCH
-    # =====================================================
-
     if search:
 
         normalized_search = normalize_text(
@@ -681,32 +671,18 @@ if st.button(
 
             st.markdown(
                 f"""
-
                 <div class="song-card">
-
                 <div class="song-title">
                 {i}. {row["track_name"]}
                 </div>
-
                 <div class="song-info">
-
-                🎤 Artist:
-                {row["artists"]}
-
+                🎤 Artist: {row["artists"]}
                 <br>
-
-                🎸 Genre:
-                {row["track_genre"]}
-
+                🎸 Genre: {row["track_genre"]}
                 <br>
-
-                ⭐ Popularity:
-                {row["popularity"]:.0f}
-
+                ⭐ Popularity: {row["popularity"]:.0f}
                 </div>
-
                 </div>
-
                 """,
                 unsafe_allow_html=True
             )
@@ -746,10 +722,6 @@ if st.button(
                     youtube_url,
                     use_container_width=True
                 )
-
-        # =================================================
-        # STATS
-        # =================================================
 
         st.markdown(
             "## 📊 Recommendation Statistics"

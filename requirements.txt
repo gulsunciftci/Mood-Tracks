@@ -1,10 +1,8 @@
 streamlit
 pandas
-scikit-learn
-joblib
-matplotlib
-seaborn
 numpy
-spotipy
+scikit-learn
+matplotlib
+joblib
 pyrebase4
 firebase-admin
