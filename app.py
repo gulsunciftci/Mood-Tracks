@@ -17,7 +17,7 @@ from sklearn.ensemble import RandomForestClassifier
 # FIREBASE CONFIG (HuggingFace Secrets)
 # =========================================================
 
-firebase_config = dict(st.secrets["firebase"])
+firebase_config = dict(st.secrets["FIREBASE_CONFIG"])
 
 # =========================================================
 # ADMIN
@@ -126,7 +126,7 @@ auth = firebase.auth()
 if not firebase_admin._apps:
 
     cred = credentials.Certificate(
-        dict(st.secrets["firebase_service_account"])
+        dict(st.secrets["FIREBASE_SERVICE_ACCOUNT"])
     )
 
     firebase_admin.initialize_app(cred)
