@@ -16,6 +16,11 @@ MoodTracks is a data science project that recommends music based on the user's c
 
 ---
 
+
+## 🌐 Live Demo
+
+🔗 [Open MoodTracks](https://mood-tracks.streamlit.app/)
+
 ## ✨ Features
 
 - 🎭 **Mood-based recommendations** — Select your mood and get personalized song suggestions
