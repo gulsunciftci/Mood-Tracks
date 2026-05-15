@@ -26,7 +26,7 @@ MoodTracks is a data science project that recommends music based on the user's c
 - 🎭 **Mood-based recommendations** — Select your mood and get personalized song suggestions
 - 🎸 **Genre filter** — Filter recommendations by music genre (114 genres available)
 - 🔍 **Search** — Search by song name or artist with Turkish character support
-- 🎧 **Direct links** — Open songs instantly on Spotify or YouTube
+- 🎧 **Direct links** — - Open songs instantly on YouTube
 - 👑 **Admin panel** — Admins can add new songs and retrain the model
 - 🔐 **Firebase authentication** — Secure login and registration system
 - 📊 **Recommendation stats** — Average popularity, energy, and positivity scores
