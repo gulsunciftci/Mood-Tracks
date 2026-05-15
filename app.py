@@ -8,16 +8,11 @@ import joblib
 import pyrebase
 import firebase_admin
 import unicodedata
+import urllib.parse
 
 from firebase_admin import credentials
 from firebase_admin import firestore
 from sklearn.ensemble import RandomForestClassifier
-
-# =========================================================
-# FIREBASE CONFIG (STREAMLIT SECRETS)
-# =========================================================
-
-firebase_config = dict(st.secrets["firebase"])
 
 # =========================================================
 # PAGE CONFIG
@@ -27,6 +22,14 @@ st.set_page_config(
     page_title="MoodTracks",
     page_icon="🎵",
     layout="wide"
+)
+
+# =========================================================
+# FIREBASE CONFIG (STREAMLIT SECRETS)
+# =========================================================
+
+firebase_config = dict(
+    st.secrets["firebase"]
 )
 
 # =========================================================
@@ -120,10 +123,14 @@ auth = firebase.auth()
 if not firebase_admin._apps:
 
     cred = credentials.Certificate(
-        dict(st.secrets["firebase_service_account"])
+        dict(
+            st.secrets["firebase_service_account"]
+        )
     )
 
-    firebase_admin.initialize_app(cred)
+    firebase_admin.initialize_app(
+        cred
+    )
 
 db = firestore.client()
 
@@ -206,7 +213,9 @@ choice = st.sidebar.selectbox(
 
 if choice == "Login":
 
-    st.sidebar.subheader("🔑 Login")
+    st.sidebar.subheader(
+        "🔑 Login"
+    )
 
     email = st.sidebar.text_input(
         "Email"
@@ -217,7 +226,9 @@ if choice == "Login":
         type="password"
     )
 
-    if st.sidebar.button("Login"):
+    if st.sidebar.button(
+        "Login"
+    ):
 
         try:
 
@@ -265,7 +276,9 @@ if choice == "Login":
 
 if choice == "Register":
 
-    st.sidebar.subheader("📝 Register")
+    st.sidebar.subheader(
+        "📝 Register"
+    )
 
     new_email = st.sidebar.text_input(
         "Email"
@@ -348,7 +361,9 @@ if st.session_state.role == "admin":
 # LOGOUT
 # =========================================================
 
-if st.sidebar.button("Logout"):
+if st.sidebar.button(
+    "Logout"
+):
 
     st.session_state.user = None
     st.session_state.role = "user"
@@ -439,23 +454,19 @@ if st.session_state.role == "admin":
             )
 
             song_exists = df[
-
                 df["track_name"]
                 .fillna("")
                 .apply(normalize_text)
                 ==
                 normalized_track
-
             ]
 
             song_exists = song_exists[
-
                 song_exists["artists"]
                 .fillna("")
                 .apply(normalize_text)
                 ==
                 normalized_artist
-
             ]
 
             if not song_exists.empty:
@@ -686,10 +697,12 @@ if st.button(
                 f'{row["artists"]}'
             )
 
+            spotify_query = urllib.parse.quote(
+                query
+            )
+
             spotify_url = (
-                "https://open.spotify.com/search/"
-                +
-                query.replace(" ", "%20")
+                f"https://open.spotify.com/search/{spotify_query}"
             )
 
             youtube_url = (
