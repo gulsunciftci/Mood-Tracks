@@ -1,6 +1,4 @@
-# =========================================================
-# 🎵 MoodTracks — FINAL VERSION
-# =========================================================
+# 🎵 MoodTracks
 
 import streamlit as st
 import pandas as pd
@@ -11,7 +9,6 @@ import unicodedata
 
 from firebase_admin import credentials
 from firebase_admin import firestore
-from sklearn.ensemble import RandomForestClassifier
 
 # =========================================================
 # PAGE CONFIG
@@ -442,111 +439,83 @@ if st.session_state.role == "admin":
                     "Please fill all fields."
                 )
 
-                st.stop()
+            else:
 
-            normalized_track = normalize_text(
-                new_track
-            )
-
-            normalized_artist = normalize_text(
-                new_artist
-            )
-
-            song_exists = df[
-                df["track_name"]
-                .fillna("")
-                .apply(normalize_text)
-                ==
-                normalized_track
-            ]
-
-            song_exists = song_exists[
-                song_exists["artists"]
-                .fillna("")
-                .apply(normalize_text)
-                ==
-                normalized_artist
-            ]
-
-            if not song_exists.empty:
-
-                st.error(
-                    "This song already exists!"
+                normalized_track = normalize_text(
+                    new_track
                 )
 
-                st.stop()
-
-            new_row = {
-
-                "track_name": new_track,
-                "artists": new_artist,
-                "track_genre": new_genre,
-                "mood": new_mood,
-                "popularity": new_popularity,
-                "energy": new_energy,
-                "valence": new_valence
-
-            }
-
-            new_df = pd.DataFrame(
-                [new_row]
-            )
-
-            try:
-
-                admin_df = pd.read_csv(
-                    "admin_songs.csv"
+                normalized_artist = normalize_text(
+                    new_artist
                 )
 
-            except:
-
-                admin_df = pd.DataFrame()
-
-            admin_df = pd.concat(
-                [admin_df, new_df],
-                ignore_index=True
-            )
-
-            admin_df.to_csv(
-                "admin_songs.csv",
-                index=False
-            )
-
-            full_df = pd.concat(
-                [df, new_df],
-                ignore_index=True
-            )
-
-            X = full_df[
-                [
-                    "valence",
-                    "energy",
-                    "popularity"
+                song_exists = df[
+                    df["track_name"]
+                    .fillna("")
+                    .apply(normalize_text)
+                    ==
+                    normalized_track
                 ]
-            ]
 
-            y = full_df["mood"]
+                song_exists = song_exists[
+                    song_exists["artists"]
+                    .fillna("")
+                    .apply(normalize_text)
+                    ==
+                    normalized_artist
+                ]
 
-            new_model = RandomForestClassifier(
-                n_estimators=100,
-                random_state=42,
-                n_jobs=-1
-            )
+                if not song_exists.empty:
 
-            new_model.fit(X, y)
+                    st.error(
+                        "This song already exists!"
+                    )
 
-            joblib.dump(
-                new_model,
-                "moodtracks_model.pkl"
-            )
+                else:
 
-            st.success(
-                "Song added & model retrained!"
-            )
+                    new_row = {
 
-            st.cache_data.clear()
+                        "track_name": new_track,
+                        "artists": new_artist,
+                        "track_genre": new_genre,
+                        "mood": new_mood,
+                        "popularity": new_popularity,
+                        "energy": new_energy,
+                        "valence": new_valence
 
-            st.rerun()
+                    }
+
+                    new_df = pd.DataFrame(
+                        [new_row]
+                    )
+
+                    try:
+
+                        admin_df = pd.read_csv(
+                            "admin_songs.csv"
+                        )
+
+                    except:
+
+                        admin_df = pd.DataFrame()
+
+                    admin_df = pd.concat(
+                        [admin_df, new_df],
+                        ignore_index=True
+                    )
+
+                    admin_df.to_csv(
+                        "admin_songs.csv",
+                        index=False
+                    )
+
+                    st.success(
+                        "Song added successfully!"
+                    )
+
+                    st.cache_data.clear()
+
+                    st.rerun()
 
 # =========================================================
 # FILTERS
@@ -737,5 +706,3 @@ if st.button(
 st.caption(
     "🎵 MoodTracks — AI Music Recommendation System"
 )
-
-
