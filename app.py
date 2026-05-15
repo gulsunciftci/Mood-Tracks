@@ -1,5 +1,5 @@
 # =========================================================
-# 🎵 MoodTracks — STREAMLIT CLOUD FINAL VERSION
+# 🎵 MoodTracks — FINAL VERSION
 # =========================================================
 
 import streamlit as st
@@ -8,7 +8,6 @@ import joblib
 import pyrebase
 import firebase_admin
 import unicodedata
-import urllib.parse
 
 from firebase_admin import credentials
 from firebase_admin import firestore
@@ -25,7 +24,7 @@ st.set_page_config(
 )
 
 # =========================================================
-# FIREBASE CONFIG (STREAMLIT SECRETS)
+# FIREBASE CONFIG
 # =========================================================
 
 firebase_config = dict(
@@ -697,14 +696,6 @@ if st.button(
                 f'{row["artists"]}'
             )
 
-            spotify_query = urllib.parse.quote(
-                query
-            )
-
-            spotify_url = (
-                f"https://open.spotify.com/search/{spotify_query}"
-            )
-
             youtube_url = (
                 "https://www.youtube.com/results?"
                 "search_query="
@@ -712,23 +703,11 @@ if st.button(
                 query.replace(" ", "+")
             )
 
-            col_spotify, col_youtube = st.columns(2)
-
-            with col_spotify:
-
-                st.link_button(
-                    "🎧 Spotify",
-                    spotify_url,
-                    use_container_width=True
-                )
-
-            with col_youtube:
-
-                st.link_button(
-                    "▶ YouTube",
-                    youtube_url,
-                    use_container_width=True
-                )
+            st.link_button(
+                "▶ YouTube",
+                youtube_url,
+                use_container_width=True
+            )
 
         st.markdown(
             "## 📊 Recommendation Statistics"
