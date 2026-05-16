@@ -994,7 +994,7 @@ else:
 
 with st.expander(
     "❤️ Your Favorite Songs",
-    expanded=True
+    expanded=False
 ):
 
     favorite_search = st.text_input(
