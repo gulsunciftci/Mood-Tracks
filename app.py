@@ -408,7 +408,283 @@ if theme != st.session_state.theme:
     })
 
     st.rerun()
+ 
+ # =========================================================
+# ADMIN PANEL
+# =========================================================
 
+if st.session_state.role == "admin":
+
+    with st.expander(
+        "👑 Admin Panel"
+    ):
+
+        # =========================================================
+        # ADD SONG
+        # =========================================================
+
+        st.subheader(
+            "➕ Add New Song"
+        )
+
+        new_track = st.text_input(
+            "Song Name"
+        )
+
+        new_artist = st.text_input(
+            "Artist"
+        )
+
+        new_genre = st.text_input(
+            "Genre"
+        )
+
+        new_mood = st.selectbox(
+            "Mood",
+            [
+                "happy",
+                "sad",
+                "angry",
+                "calm"
+            ]
+        )
+
+        new_popularity = st.slider(
+            "Popularity",
+            0,
+            100,
+            50
+        )
+
+        new_energy = st.slider(
+            "Energy",
+            0.0,
+            1.0,
+            0.5
+        )
+
+        new_valence = st.slider(
+            "Valence",
+            0.0,
+            1.0,
+            0.5
+        )
+
+        if st.button(
+            "➕ Add Song"
+        ):
+
+            if (
+                not new_track
+                or
+                not new_artist
+                or
+                not new_genre
+            ):
+
+                st.error(
+                    "Please fill all fields."
+                )
+
+            else:
+
+                new_row = {
+
+                    "track_name": new_track,
+                    "artists": new_artist,
+                    "track_genre": new_genre,
+                    "mood": new_mood,
+                    "popularity": new_popularity,
+                    "energy": new_energy,
+                    "valence": new_valence
+
+                }
+
+                try:
+
+                    admin_df = pd.read_csv(
+                        "admin_songs.csv"
+                    )
+
+                except:
+
+                    admin_df = pd.DataFrame()
+
+                admin_df = pd.concat(
+                    [
+                        admin_df,
+                        pd.DataFrame([new_row])
+                    ],
+                    ignore_index=True
+                )
+
+                admin_df.to_csv(
+                    "admin_songs.csv",
+                    index=False
+                )
+
+                st.success(
+                    "Song added successfully!"
+                )
+
+                st.cache_data.clear()
+
+                st.rerun()
+
+        st.markdown("---")
+
+        # =========================================================
+        # MANAGE SONGS
+        # =========================================================
+
+        st.subheader(
+            "🎵 Manage Added Songs"
+        )
+
+        try:
+
+            admin_df = pd.read_csv(
+                "admin_songs.csv"
+            )
+
+        except:
+
+            admin_df = pd.DataFrame()
+
+        if not admin_df.empty:
+
+            selected_song = st.selectbox(
+
+                "Select Song",
+
+                admin_df.apply(
+                    lambda x:
+                    f'{x["track_name"]} — {x["artists"]}',
+                    axis=1
+                ).tolist()
+            )
+
+            selected_index = admin_df.apply(
+                lambda x:
+                f'{x["track_name"]} — {x["artists"]}',
+                axis=1
+            ).tolist().index(selected_song)
+
+            row = admin_df.iloc[selected_index]
+
+            edit_track = st.text_input(
+                "Edit Song Name",
+                value=row["track_name"]
+            )
+
+            edit_artist = st.text_input(
+                "Edit Artist",
+                value=row["artists"]
+            )
+
+            edit_genre = st.text_input(
+                "Edit Genre",
+                value=row["track_genre"]
+            )
+
+            edit_mood = st.selectbox(
+                "Edit Mood",
+                [
+                    "happy",
+                    "sad",
+                    "angry",
+                    "calm"
+                ],
+                index=[
+                    "happy",
+                    "sad",
+                    "angry",
+                    "calm"
+                ].index(row["mood"])
+            )
+
+            edit_popularity = st.slider(
+                "Edit Popularity",
+                0,
+                100,
+                int(row["popularity"])
+            )
+
+            edit_energy = st.slider(
+                "Edit Energy",
+                0.0,
+                1.0,
+                float(row["energy"])
+            )
+
+            edit_valence = st.slider(
+                "Edit Valence",
+                0.0,
+                1.0,
+                float(row["valence"])
+            )
+
+            col1, col2 = st.columns(2)
+
+            with col1:
+
+                if st.button(
+                    "💾 Save Changes"
+                ):
+
+                    admin_df.loc[selected_index] = {
+
+                        "track_name": edit_track,
+                        "artists": edit_artist,
+                        "track_genre": edit_genre,
+                        "mood": edit_mood,
+                        "popularity": edit_popularity,
+                        "energy": edit_energy,
+                        "valence": edit_valence
+
+                    }
+
+                    admin_df.to_csv(
+                        "admin_songs.csv",
+                        index=False
+                    )
+
+                    st.success(
+                        "Song updated successfully!"
+                    )
+
+                    st.cache_data.clear()
+
+                    st.rerun()
+
+            with col2:
+
+                if st.button(
+                    "🗑 Delete Song"
+                ):
+
+                    admin_df = admin_df.drop(
+                        selected_index
+                    )
+
+                    admin_df.to_csv(
+                        "admin_songs.csv",
+                        index=False
+                    )
+
+                    st.success(
+                        "Song deleted successfully!"
+                    )
+
+                    st.cache_data.clear()
+
+                    st.rerun()
+
+        else:
+
+            st.info(
+                "No admin-added songs yet."
+            )
 
 # LOGOUT
 
@@ -712,96 +988,131 @@ else:
     )
 
 
+# =========================================================
 # FAVORITE SONGS
+# =========================================================
 
+with st.expander(
+    "❤️ Your Favorite Songs",
+    expanded=True
+):
 
-st.markdown("## ❤️ Your Favorite Songs")
-
-favorite_docs = db.collection(
-    "favorites"
-).where(
-    "uid",
-    "==",
-    uid
-).stream()
-
-favorites = []
-
-for doc in favorite_docs:
-
-    data = doc.to_dict()
-
-    data["doc_id"] = doc.id
-
-    favorites.append(data)
-
-if favorites:
-
-    for fav in favorites:
-
-        st.markdown(
-            f"""
-            <div class="song-card">
-            <div class="song-title">
-            🎵 {fav["track_name"]}
-            </div>
-            <div class="song-info">
-            🎤 {fav["artist"]}
-            </div>
-            </div>
-            """,
-            unsafe_allow_html=True
-        )
-
-        query = (
-            f'{fav["track_name"]} '
-            f'{fav["artist"]}'
-        )
-
-        youtube_url = (
-            "https://www.youtube.com/results?"
-            "search_query="
-            +
-            query.replace(" ", "+")
-        )
-
-        col1, col2 = st.columns(2)
-
-        with col1:
-
-            st.link_button(
-                "▶ YouTube",
-                youtube_url,
-                use_container_width=True,
-                key=f'youtube_{fav["doc_id"]}'
-            )
-
-        with col2:
-
-            if st.button(
-                "🗑 Remove",
-                use_container_width=True,
-                key=f'remove_{fav["doc_id"]}'
-            ):
-
-                db.collection(
-                    "favorites"
-                ).document(
-                    fav["doc_id"]
-                ).delete()
-
-                st.success(
-                    "Removed from favorites!"
-                )
-
-                st.rerun()
-
-else:
-
-    st.info(
-        "No favorite songs yet."
+    favorite_search = st.text_input(
+        "🔍 Search favorite song"
     )
 
+    favorite_docs = db.collection(
+        "favorites"
+    ).where(
+        "uid",
+        "==",
+        uid
+    ).stream()
+
+    favorites = []
+
+    for doc in favorite_docs:
+
+        data = doc.to_dict()
+
+        data["doc_id"] = doc.id
+
+        favorites.append(data)
+
+    if favorite_search:
+
+        normalized_search = normalize_text(
+            favorite_search
+        )
+
+        favorites = [
+
+            fav for fav in favorites
+
+            if
+            normalized_search
+            in
+            normalize_text(
+                fav["track_name"]
+            )
+
+            or
+
+            normalized_search
+            in
+            normalize_text(
+                fav["artist"]
+            )
+        ]
+
+    if favorites:
+
+        for i, fav in enumerate(favorites, 1):
+
+            with st.container():
+
+                st.markdown(
+                    f"""
+                    <div class="song-card">
+                    <div class="song-title">
+                    🎵 {fav["track_name"]}
+                    </div>
+                    <div class="song-info">
+                    🎤 {fav["artist"]}
+                    </div>
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+                query = (
+                    f'{fav["track_name"]} '
+                    f'{fav["artist"]}'
+                )
+
+                youtube_url = (
+                    "https://www.youtube.com/results?"
+                    "search_query="
+                    +
+                    query.replace(" ", "+")
+                )
+
+                col1, col2 = st.columns(2)
+
+                with col1:
+
+                    st.link_button(
+                        "▶ YouTube",
+                        youtube_url,
+                        use_container_width=True,
+                        key=f'youtube_{fav["doc_id"]}'
+                    )
+
+                with col2:
+
+                    if st.button(
+                        "🗑 Remove",
+                        use_container_width=True,
+                        key=f'remove_{fav["doc_id"]}'
+                    ):
+
+                        db.collection(
+                            "favorites"
+                        ).document(
+                            fav["doc_id"]
+                        ).delete()
+
+                        st.success(
+                            "Removed from favorites!"
+                        )
+
+                        st.rerun()
+
+    else:
+
+        st.info(
+            "No favorite songs found."
+        )
 
 # FOOTER
 
