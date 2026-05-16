@@ -1,3 +1,7 @@
+![İmage1](images/sc1.png)
+
+![İmage2](images/sc2.png)
+
 # 🎵 MoodTracks
 
 > AI-powered music recommendation system based on your mood
