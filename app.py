@@ -1114,6 +1114,191 @@ with st.expander(
             "No favorite songs found."
         )
 
+
+# =========================================================
+# FEEDBACK PANEL
+# =========================================================
+
+st.markdown("## 💬 Feedback")
+
+with st.expander(
+    "Share your feedback",
+    expanded=False
+):
+
+    feedback_text = st.text_area(
+        "Your feedback",
+        placeholder="Write your opinion about MoodTracks..."
+    )
+
+    feedback_rating = st.slider(
+        "Rating",
+        1,
+        5,
+        5
+    )
+
+    if st.button(
+        "📩 Submit Feedback"
+    ):
+
+        if feedback_text.strip() == "":
+
+            st.warning(
+                "Please write feedback first."
+            )
+
+        else:
+
+            db.collection(
+                "feedbacks"
+            ).add({
+
+                "uid": uid,
+                "email": st.session_state.user["email"],
+                "feedback": feedback_text,
+                "rating": feedback_rating,
+                "timestamp": datetime.utcnow()
+
+            })
+
+            st.success(
+                "Thank you for your feedback ❤️"
+            )
+
+# =========================================================
+# ADMIN FEEDBACK VIEW
+# =========================================================
+
+if st.session_state.role == "admin":
+
+    with st.expander(
+        "📋 User Feedbacks",
+        expanded=False
+    ):
+
+        feedback_docs = db.collection(
+            "feedbacks"
+        ).stream()
+
+        feedbacks = []
+
+        for doc in feedback_docs:
+
+            data = doc.to_dict()
+
+            data["doc_id"] = doc.id
+
+            feedbacks.append(data)
+
+        if feedbacks:
+
+            # SEARCH
+
+            search_feedback = st.text_input(
+                "🔍 Search feedback"
+            )
+
+            # SORT
+
+            sort_option = st.selectbox(
+                "📅 Sort By",
+                [
+                    "Newest First",
+                    "Oldest First"
+                ]
+            )
+
+            # SEARCH FILTER
+
+            if search_feedback:
+
+                search_feedback = normalize_text(
+                    search_feedback
+                )
+
+                feedbacks = [
+
+                    fb for fb in feedbacks
+
+                    if
+                    search_feedback in normalize_text(
+                        fb.get("feedback", "")
+                    )
+
+                    or
+
+                    search_feedback in normalize_text(
+                        fb.get("email", "")
+                    )
+                ]
+
+            # SORT FILTER
+
+            feedbacks = sorted(
+
+                feedbacks,
+
+                key=lambda x:
+                x.get("timestamp"),
+
+                reverse=(
+                    sort_option
+                    ==
+                    "Newest First"
+                )
+            )
+
+            st.markdown("---")
+
+            for fb in feedbacks:
+
+                timestamp = fb.get(
+                    "timestamp"
+                )
+
+                if timestamp:
+
+                    formatted_time = timestamp.strftime(
+                        "%d.%m.%Y %H:%M"
+                    )
+
+                else:
+
+                    formatted_time = "Unknown"
+
+                st.markdown(
+                    f"""
+                    <div class="song-card">
+
+                    <div class="song-title">
+                    ⭐ {fb["rating"]}/5
+                    </div>
+
+                    <div class="song-info">
+
+                    👤 {fb["email"]}
+
+                    <br><br>
+
+                    💬 {fb["feedback"]}
+
+                    <br><br>
+
+                    🕒 {formatted_time}
+
+                    </div>
+
+                    </div>
+                    """,
+                    unsafe_allow_html=True
+                )
+
+        else:
+
+            st.info(
+                "No feedback yet."
+            )
 # FOOTER
 
 
